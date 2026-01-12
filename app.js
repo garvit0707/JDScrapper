@@ -5,8 +5,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var connectDB = require('./config/mongoDB');
-const cron = require('node-cron');
-const { sendDailyJobEmail } = require('./utils/emailScheduler');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -34,24 +32,6 @@ app.use(function(req, res, next) {
 });
 
 connectDB();
-
-// Schedule daily job email at 8:00 PM
-// cron.schedule('0 20 * * *', () => {
-//   console.log('Running scheduled daily job email at 8:00 PM');
-//   sendDailyJobEmail();
-// });
-cron.schedule('0 20 * * *', async () => {
-  console.log('⏰ Running scheduled daily job email at 8:00 PM');
-
-  try {
-    await sendDailyJobEmail();
-    console.log('📧 Daily job email sent successfully');
-  } catch (err) {
-    console.error('❌ Daily job email failed:', err.message);
-  }
-});
-
-
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development

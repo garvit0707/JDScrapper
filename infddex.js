@@ -43,10 +43,10 @@ puppeteer.use(StealthPlugin());
     // await page.screenshot({ path: 'naukri-page.png', fullPage: true });
 
     // Wait for job listings
-    await page.waitForSelector(".job-tuple", { timeout: 60000 });
+    await page.waitForSelector(".srp-jobtuple-wrapper", { timeout: 60000 });
 
     const jobs = await page.evaluate(() => {
-      const jobElements = document.querySelectorAll(".job-tuple");
+      const jobElements = document.querySelectorAll(".srp-jobtuple-wrapper");
       const results = [];
 
       jobElements.forEach((el) => {
