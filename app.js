@@ -1,65 +1,67 @@
 require('dotenv').config();
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var connectDB = require('./config/mongoDB');
-const cron = require('node-cron');
-const { sendDailyJobEmail } = require('./utils/emailScheduler');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var scrapeRouter = require('./routes/scrapeRoutes')
+const express = require('express');
+const createError = require('http-errors');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var app = express();
+const connectDB = require('./config/mongoDB');
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// Routes
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const scrapeRouter = require('./routes/scrapeRoutes');
 
+const app = express();
+
+/* -------------------- MIDDLEWARE -------------------- */
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
+/* -------------------- ROUTES -------------------- */
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use("/scrape", scrapeRouter)
+app.use('/scrape', scrapeRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-connectDB();
-
-// Schedule daily job email at 8:00 PM
-// cron.schedule('0 20 * * *', () => {
-//   console.log('Running scheduled daily job email at 8:00 PM');
-//   sendDailyJobEmail();
-// });
-cron.schedule('0 20 * * *', async () => {
-  console.log('⏰ Running scheduled daily job email at 8:00 PM');
-
+/* -------------------- VERCEL CRON ENDPOINT -------------------- */
+/**
+ * This endpoint will be called by Vercel Cron
+ * Example: once every day at 6 PM
+ */
+app.get('/api/send-daily-email', async (req, res) => {
   try {
+    const { sendDailyJobEmail } = require('./utils/emailScheduler');
     await sendDailyJobEmail();
-    console.log('📧 Daily job email sent successfully');
-  } catch (err) {
-    console.error('❌ Daily job email failed:', err.message);
+
+    res.status(200).json({
+      success: true,
+      message: 'Daily job email sent successfully'
+    });
+  } catch (error) {
+    console.error('Cron email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error sending daily job email'
+    });
   }
 });
 
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+/* -------------------- 404 HANDLER -------------------- */
+app.use((req, res, next) => {
+  next(createError(404, 'Route not found'));
 });
+
+/* -------------------- DB CONNECTION -------------------- */
+connectDB();
+
+/* -------------------- ERROR HANDLER -------------------- */
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
+  });
+});
+
 module.exports = app;
