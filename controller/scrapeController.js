@@ -4,16 +4,27 @@ const { sendDailyJobEmail } = require("../utils/emailScheduler");
 
 exports.scrapeAll = async (req, res) => {
   try {
-    // First, trigger scraping to update DB with new jobs
-    await scrapeJobs();
-    // Send email with scraped jobs
-    await sendDailyJobEmail();
-    // Then, fetch all jobs from DB
+    // Fetch all jobs from DB
     const jobs = await JobPost.find({});
     res.json(jobs);
   } catch (error) {
     console.error("Error fetching jobs:", error);
     res.status(500).json({ error: "Failed to fetch jobs" });
+  }
+};
+
+exports.triggerScrape = async (req, res) => {
+  try {
+    // Trigger scraping asynchronously
+    scrapeJobs().then(() => {
+      console.log("Scraping completed asynchronously");
+    }).catch((error) => {
+      console.error("Error in async scraping:", error);
+    });
+    res.json({ message: "Scraping triggered asynchronously" });
+  } catch (error) {
+    console.error("Error triggering scrape:", error);
+    res.status(500).json({ error: "Failed to trigger scrape" });
   }
 };
 

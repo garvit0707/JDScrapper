@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const chromium = require("@sparticuz/chromium");
+
 puppeteer.use(StealthPlugin());
 
 // List of user agents to randomize
@@ -13,16 +15,10 @@ const userAgents = [
 
 scrapeFromConfig = async (config) => {
   const browser = await puppeteer.launch({
-    headless: true,
-    defaultViewport: null,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-blink-features=AutomationControlled",
-      "--disable-web-security",
-      "--disable-features=VizDisplayCompositor",
-      "--window-size=1366,768",
-    ],
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
   });
   const page = await browser.newPage();
 
