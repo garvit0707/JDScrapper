@@ -14,6 +14,9 @@ const scrapeRouter = require('./routes/scrapeRoutes');
 
 const app = express();
 
+/* -------------------- DB CONNECTION -------------------- */
+connectDB();
+
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(logger('dev'));
 app.use(express.json());
@@ -52,9 +55,6 @@ app.get('/api/send-daily-email', async (req, res) => {
 app.use((req, res, next) => {
   next(createError(404, 'Route not found'));
 });
-
-/* -------------------- DB CONNECTION -------------------- */
-connectDB();
 
 /* -------------------- ERROR HANDLER -------------------- */
 app.use((err, req, res, next) => {

@@ -4,8 +4,16 @@ const { sendDailyJobEmail } = require("../utils/emailScheduler");
 
 exports.scrapeAll = async (req, res) => {
   try {
+    // Check DB connection
+    const mongoose = require('mongoose');
+    console.log("DB connection state:", mongoose.connection.readyState); // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (mongoose.connection.readyState !== 1) {
+      console.error("DB not connected");
+      return res.status(500).json({ error: "Database not connected" });
+    }
     // Fetch all jobs from DB
     const jobs = await JobPost.find({});
+    console.log(`Fetched ${jobs.length} jobs from DB`);
     res.json(jobs);
   } catch (error) {
     console.error("Error fetching jobs:", error);

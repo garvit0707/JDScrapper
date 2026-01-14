@@ -3,6 +3,7 @@ const genericScraper = require("../scrapper/genericScraper");
 const JobPost = require("../model/JobPost");
 
 async function scrapeJobs() {
+  console.log("🚀 Starting scrapeJobs function");
   let configs = [
     {
       url: "https://www.glassdoor.co.in/Job/india-react-native-jobs-SRCH_IL.0,5_IN1_KO6,18.htm",
