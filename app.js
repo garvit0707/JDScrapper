@@ -15,11 +15,12 @@ const scrapeRouter = require('./routes/scrapeRoutes');
 const app = express();
 
 /* -------------------- DB CONNECTION -------------------- */
+console.log("this should be printed only once");
 connectDB();
 
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json());  
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 

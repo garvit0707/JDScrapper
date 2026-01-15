@@ -9,6 +9,8 @@ exports.scrapeAll = async (req, res) => {
     console.log("DB connection state:", mongoose.connection.readyState); // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     if (mongoose.connection.readyState !== 1) {
       console.error("DB not connected");
+       console.log("DB connecting, waiting 1s...");
+      await new Promise(resolve => setTimeout(resolve, 1000));
       return res.status(500).json({ error: "Database not connected" });
     }
     // Fetch all jobs from DB
