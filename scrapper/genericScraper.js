@@ -15,10 +15,18 @@ const userAgents = [
 
 scrapeFromConfig = async (config) => {
   const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
+    // args: chromium.args,
+    // defaultViewport: chromium.defaultViewport,
+    // executablePath: await chromium.executablePath(),
+    // headless: chromium.headless,
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--single-process"
+    ]
   });
   const page = await browser.newPage();
 
@@ -125,7 +133,7 @@ scrapeFromConfig = async (config) => {
   } catch (err) {
     console.error("❌ Error: this error is here", err.message);
     console.error("❌ Error: this error is here", err.message);
-    return [];  
+    return [];
   } finally {
     await browser.close();
   }
