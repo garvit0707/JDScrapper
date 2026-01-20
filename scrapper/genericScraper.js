@@ -1,9 +1,14 @@
-const puppeteer = require("puppeteer-extra");
+// const puppeteer = require("puppeteer-extra");
+// const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+// const chromium = require("@sparticuz/chromium");
+
+// puppeteer.use(StealthPlugin());
+const puppeteerExtra = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const chromium = require("@sparticuz/chromium");
+const puppeteerCore = require("puppeteer-core");
 
-puppeteer.use(StealthPlugin());
-
+puppeteerExtra.use(StealthPlugin());
 // List of user agents to randomize
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -14,19 +19,25 @@ const userAgents = [
 ];
 
 scrapeFromConfig = async (config) => {
-  const browser = await puppeteer.launch({
+  const browser = await puppeteerExtra.launch({
     // args: chromium.args,
     // defaultViewport: chromium.defaultViewport,
     // executablePath: await chromium.executablePath(),
     // headless: chromium.headless,
-    headless: true,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--single-process"
-    ]
+    // headless: true,
+    // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+    // args: [
+    //   "--no-sandbox",
+    //   "--disable-setuid-sandbox",
+    //   "--disable-dev-shm-usage",
+    //   "--single-process"
+    // ]
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+        puppeteer: puppeteerCore
   });
   const page = await browser.newPage();
 
